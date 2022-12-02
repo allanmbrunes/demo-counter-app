@@ -80,7 +80,19 @@ pipeline{
                     script{
                         sh 'docker image build -t $JOB_NAME:v1.$BUILD_ID .'
                         sh 'docker image tag $JOB_NAME:v1.$BUILD_ID allanmbstest/$JOB_NAME:v1.$BUILD_ID'
-                        sh 'docker image tag $JOB_NAME:v1.$BUILD_ID allanmbstest/$JOB_NAME:v1.$BUILD_ID'
+                        sh 'docker image tag $JOB_NAME:v1.$BUILD_ID allanmbstest/$JOB_NAME:latest'
+                    }
+                    
+                }
+            }
+            stage ("Push image to docker repo"){
+                steps{
+                    script{
+                        withCredentials([string(credentialsId: 'docker_cred', variable: 'docker_hub_cred')]) {
+                            sh 'docker login -u allanmbstest -p ${docker_hub_cred}'
+                            sh 'docker image push allanmbstest/$JOB_NAME:v1.$BUILD_ID'
+                            sh 'docker image push allanmbstest/$JOB_NAME:latest'
+                        }
                     }
                     
                 }
